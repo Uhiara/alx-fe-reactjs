@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 function Navbar() {
     const navStyle = {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundcolor: '#667eea',
+        justifyContent: 'space-between',
         padding: '20px 40px',
         display: 'flex',
         gap: '30px',
