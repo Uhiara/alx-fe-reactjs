@@ -2,7 +2,7 @@ function UserProfile() {
     return (
         <div className="
       bg-gray-100 
-      p-4 sm:p-6 md:p-8 
+      p-4 sm:p-4 md:p-8 
       max-w-xs sm:max-w-sm md:max-w-md 
       mx-auto my-12 sm:my-16 md:my-20 
       rounded-lg 
