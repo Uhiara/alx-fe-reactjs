@@ -4,7 +4,8 @@ function UserProfile() {
       bg-gray-100 
       p-4 sm:p-4 md:p-8 
       max-w-xs sm:max-w-sm md:max-w-sm
-      mx-auto my-12 sm:my-16 md:my-20 md:text-xl
+      mx-auto my-12 sm:my-16 md:my-20 
+      md:text-xl sm:w-24 sm:h-24
       rounded-lg 
       shadow-md sm:shadow-lg 
       hover:shadow-xl 
