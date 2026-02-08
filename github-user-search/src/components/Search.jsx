@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { searchUsers } from '../services/githubService';
+import { searchUsers, fetchUserData } from '../services/githubService';
 
 const Search = () => {
   const [keyword, setKeyword] = useState('');
@@ -16,19 +16,23 @@ const Search = () => {
     setError(null);
 
     try {
-      const { items, total_count } = await searchUsers({ keyword, location, minRepos });
+      const data = await searchUsers({ keyword, location, minRepos }, newPage);
+
+      // Fetch full details for each user (like your friend does)
+      const detailedUsers = await Promise.all(
+        data.items.map(user => fetchUserData(user.login))
+      );
 
       if (newPage === 1) {
-        setUsers(items);
+        setUsers(detailedUsers);
       } else {
-        setUsers(prev => [...prev, ...items]);
+        setUsers(prev => [...prev, ...detailedUsers]);
       }
 
-      // Simple "has more" logic (GitHub doesn't always give exact total, but approximate)
-      setHasMore(items.length === 12 && (total_count || 0) > newPage * 12);
+      setHasMore(data.items.length > 0);
       setPage(newPage);
     } catch (err) {
-      setError(err.message);
+      setError(err.message === "Looks like we cant find the user" ? err.message : "Failed to search");
       setUsers([]);
     } finally {
       setLoading(false);
@@ -46,7 +50,7 @@ const Search = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Form */}
+      {/* Form - your original, with Tailwind */}
       <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl p-6 mb-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -67,7 +71,7 @@ const Search = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Lagos, Nigeria, Berlin"
-              className="w-full px-4 py-2 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -93,17 +97,19 @@ const Search = () => {
         </button>
       </form>
 
-      {/* Results */}
-      {loading && users.length === 0 && (
+      {/* Loading */}
+      {loading && (
         <div className="text-center text-gray-600 text-xl py-12">Loading...</div>
       )}
 
+      {/* Error */}
       {error && (
         <div className="text-center text-red-600 text-xl py-8 bg-red-50 rounded-lg">
           {error}
         </div>
       )}
 
+      {/* Results */}
       {users.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -123,13 +129,11 @@ const Search = () => {
                     className="w-24 h-24 rounded-full mb-4 border-4 border-gray-100"
                   />
                   <h3 className="text-xl font-semibold text-gray-900">
-                    {user.login}
+                    {user.name || user.login}
                   </h3>
-                  {user.location && (
-                    <p className="text-gray-600 mt-1">📍 {user.location}</p>
-                  )}
+                  {user.location && <p className="text-gray-600 mt-1">📍 {user.location}</p>}
                   <p className="text-gray-600 mt-1">
-                    Repositories: <span className="font-medium">{user.public_repos ?? '?'}</span>
+                    Repositories: <span className="font-medium">{user.public_repos}</span>
                   </p>
                   <a
                     href={user.html_url}
@@ -155,12 +159,6 @@ const Search = () => {
               </button>
             </div>
           )}
-        </div>
-      )}
-
-      {users.length === 0 && !loading && !error && keyword && (
-        <div className="text-center text-gray-600 text-xl py-12">
-          No users found. Try different criteria.
         </div>
       )}
     </div>
