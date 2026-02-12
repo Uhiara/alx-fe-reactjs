@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-import recipesData from '../data.json'; // Make sure this path is correct
+import { Link } from 'react-router-dom';
+import recipesData from '../data.json';
 
 function HomePage() {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Load mock data when component mounts
+        // Load data from data.json
         setTimeout(() => {
-            setRecipes(recipesData || []); // fallback to empty array if data is missing
+            setRecipes(recipesData || []);
             setLoading(false);
-        }, 600); // small delay so you can see the loading spinner
+        }, 600); // brief delay to show spinner
     }, []);
 
     return (
@@ -23,17 +24,24 @@ function HomePage() {
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                     Discover delicious recipes shared by food lovers around the world.
                 </p>
+                {/* Add New Recipe button */}
+                <Link
+                    to="/add-recipe"
+                    className="inline-block px-8 py-4 bg-green-600 text-white font-semibold text-lg rounded-xl hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                    + Add Your Own Recipe
+                </Link>
             </div>
 
             {/* Loading state */}
             {loading ? (
-                <div className="text-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-600 text-lg">Loading delicious recipes...</p>
+                <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+                    <p className="mt-6 text-gray-600 text-xl">Loading delicious recipes...</p>
                 </div>
             ) : recipes.length === 0 ? (
                 <div className="text-center text-gray-600 py-20 text-xl">
-                    No recipes found. Check your data.json file.
+                    No recipes found. Add some delicious ones!
                 </div>
             ) : (
                 /* Recipe Grid */
@@ -42,15 +50,9 @@ function HomePage() {
                         <div
                             key={recipe.id}
                             className="
-                bg-white 
-                rounded-xl 
-                shadow-lg 
-                overflow-hidden 
-                transform 
-                transition-all 
-                duration-300 
-                hover:shadow-2xl 
-                hover:scale-[1.03]
+                bg-white rounded-xl shadow-lg overflow-hidden 
+                transform transition-all duration-300 
+                hover:shadow-2xl hover:scale-[1.03]
               "
                         >
                             <img
@@ -65,19 +67,16 @@ function HomePage() {
                                 <p className="text-gray-600 text-base line-clamp-3 mb-4">
                                     {recipe.summary}
                                 </p>
-                                <button className="
-                  mt-2 
-                  inline-block 
-                  px-5 py-2.5 
-                  bg-blue-600 
-                  text-white 
-                  font-medium 
-                  rounded-lg 
-                  hover:bg-blue-700 
-                  transition
-                ">
+                                <Link
+                                    to={`/recipe/${recipe.id}`}
+                                    className="
+                    inline-block px-5 py-2.5 
+                    bg-blue-600 text-white font-medium 
+                    rounded-lg hover:bg-blue-700 transition
+                  "
+                                >
                                     View Recipe
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))}
